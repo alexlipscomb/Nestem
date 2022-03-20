@@ -4,8 +4,25 @@ const nearley = require('nearley');
 const grammar = require('./NestGrammar');
 
 let unparsedData;
-const variables = {};
+let variables = {};
 let patterns = [];
+let data = {};
+
+function chooseRandom(arr) {
+    let maxNum = 0;
+    let maxNumIndex = 0;
+
+    for (let i = 0; i < arr.length; i += 1) {
+        currentWeight = arr[i] * Math.random();
+
+        if (currentWeight > maxNum) {
+            maxNum = currentWeight;
+            maxNumIndex = i;
+        }
+    }
+
+    return maxNumIndex;
+}
 
 function separateVariables(parsedData) {
     for (let i = 0; i < parsedData.length; i += 1) {
@@ -38,12 +55,34 @@ function resolveVariables(pats) {
     return replacedPattern;
 }
 
+function generate(d) {
+    const { pattern } = d;
+
+    const generatedPattern = [];
+
+    for (let i = 0; i < pattern.length; i += 1) {
+        if (typeof pattern[i] === 'string' || typeof pattern[i] === 'number') {
+            generatedPattern.push(pattern[i]);
+        } else if (typeof pattern[i] === 'object' && 'pattern' in pattern[i]) {
+            const chosenPatternIndex = chooseRandom(pattern[i].weights);
+            generatedPattern.push(generate(pattern[i].pattern[chosenPatternIndex]));
+        }
+    }
+
+    return generatedPattern.flat(Infinity);
+}
+
 const handlers = {
     [Max.MESSAGE_TYPES.BANG]: () => {
-        Max.outlet('pattern', generate());
+        const generatedData = generate(data).toString().replaceAll(',', ' ');
+
+        Max.outlet('pattern', generatedData);
     },
     add: (item) => {
         unparsedData = item;
+        variables = {};
+        patterns = [];
+        data = {};
     },
     compile: () => {
         Max.outlet('busy', 1);
@@ -58,7 +97,7 @@ const handlers = {
 
             separateVariables(parsedData);
 
-            const data = resolveVariables(patterns);
+            data = resolveVariables(patterns);
 
             Max.outlet('dict', data);
         } catch (err) {
