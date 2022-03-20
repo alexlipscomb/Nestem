@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 175.0, 79.0, 563.0, 973.0 ],
+		"rect" : [ 175.0, 79.0, 902.0, 973.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -256,8 +256,6 @@
 					"saved_object_attributes" : 					{
 						"autostart" : 1,
 						"defer" : 0,
-						"node_bin_path" : "",
-						"npm_bin_path" : "",
 						"watch" : 1
 					}
 ,
@@ -309,7 +307,7 @@
 					"rounded" : 0.0,
 					"separator" : "\u003b",
 					"tabmode" : 0,
-					"text" : "$a = 10;\n[1 $a [[$a 100 'foo' 'bar']]]{0.25 0.5};"
+					"text" : "$a = 10 12;\n[1 2 [[2 4][5 6]] 100 100];"
 				}
 
 			}

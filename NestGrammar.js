@@ -58,7 +58,6 @@ function parseExpression(d) {
 function parseNest(d) {
 	const output = {
 		pattern: [],
-		children: [],
 		weights: [],
 	}
 
@@ -66,7 +65,7 @@ function parseNest(d) {
 		if (typeof d[3][i][1][0] === 'string' || typeof d[3][i][1][0] === 'number') {
 			output.pattern.push(d[3][i][1][0]);
 		} else {
-			output.children.push(d[3][i][0]);
+			output.pattern.push(d[3][i][0]);
 		}
 	}
 
@@ -75,16 +74,6 @@ function parseNest(d) {
 	}
 
 	return output;
-}
-
-function parseNestChild(d) {
-	const output = {
-		pattern: [],
-		children: [],
-		weights: [],
-	}
-
-	return d;
 }
 
 function parseWeight(d) {

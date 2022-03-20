@@ -5,16 +5,37 @@ const grammar = require('./NestGrammar');
 
 let unparsedData;
 const variables = {};
-const patterns = [];
+let patterns = [];
 
 function separateVariables(parsedData) {
     for (let i = 0; i < parsedData.length; i += 1) {
         if ('variable' in parsedData[i][0]) {
             variables[parsedData[i][0].variable] = parsedData[i][0].data;
         } else {
-            patterns.push(parsedData[i][0]);
+            [patterns] = parsedData[i];
         }
     }
+}
+
+function resolveVariables(pats) {
+    const { pattern, weights } = pats;
+
+    const replacedPattern = {
+        pattern: [],
+        weights,
+    };
+
+    for (let i = 0; i < pattern.length; i += 1) {
+        if (typeof pattern[i] === 'string' && pattern[i].startsWith('$')) {
+            replacedPattern.pattern.push(...variables[pattern[i]]);
+        } else if (typeof pattern[i] === 'object' && 'pattern' in pattern[i]) {
+            replacedPattern.pattern.push(resolveVariables(pattern[i]));
+        } else {
+            replacedPattern.pattern.push(pattern[i]);
+        }
+    }
+
+    return replacedPattern;
 }
 
 const handlers = {
@@ -37,7 +58,9 @@ const handlers = {
 
             separateVariables(parsedData);
 
-            Max.outlet('dict', patterns);
+            const data = resolveVariables(patterns);
+
+            Max.outlet('dict', data);
         } catch (err) {
             const errMsg = `${err}`;
             Max.post(errMsg, Max.POST_LEVELS.ERROR);
